@@ -1,0 +1,78 @@
+@import "tailwindcss";
+@import "@fontsource-variable/lexend";
+@import "@fontsource-variable/bricolage-grotesque";
+
+:root {
+  --font-sans: 'Lexend Variable', system-ui, -apple-system, sans-serif;
+  --font-display: 'Bricolage Grotesque Variable', cursive, sans-serif;
+
+  /* Paleta cálida de biblioteca escolar */
+  --bg-biblioteca: #fbf7ee;
+  --bg-madera-clara: #eddcc4;
+  --bg-madera-oscura: #8c5835;
+  --bg-estante: #633919;
+  --borde-estante: #42230c;
+  --tinta: #2c2523;
+  --tinta-suave: #695d56;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-biblioteca);
+  color: var(--tinta);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar estilizada */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1ebd9;
+}
+::-webkit-scrollbar-thumb {
+  background: #c7b299;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a89178;
+}
+
+/* Efectos visuales de biblioteca y libros */
+.madera-estante {
+  background: linear-gradient(180deg, #874e27 0%, #633919 60%, #42230c 100%);
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.2), 0 8px 16px rgba(44, 37, 35, 0.25);
+  border-top: 3px solid #ab6a3b;
+}
+
+.madera-fondo {
+  background: #ecdcc3;
+  background-image: 
+    repeating-linear-gradient(90deg, transparent, transparent 110px, rgba(140, 88, 53, 0.04) 110px, rgba(140, 88, 53, 0.04) 112px),
+    radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.6) 0%, transparent 80%);
+}
+
+.textura-papel {
+  background-color: #fffdf9;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 0);
+  background-size: 16px 16px;
+}
+
+/* Lomo de libro */
+.lomo-libro {
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: bottom center;
+}
+.lomo-libro:hover {
+  transform: translateY(-14px) scale(1.02);
+  filter: brightness(1.06);
+}
+
+/* Botones y elementos táctiles */
+button {
+  font-family: inherit;
+}
