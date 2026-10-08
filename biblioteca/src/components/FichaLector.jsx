@@ -2,8 +2,8 @@ import React from 'react'
 import { Icono } from './common/Icono'
 import { useProgreso } from '../context/ProgresoContext'
 
-export function FichaLector({ onCerrar }) {
-  const { progreso, reiniciarProgreso } = useProgreso()
+export function FichaLector({ onCerrar, onCambiarEstudiante }) {
+  const { estudiante, progreso, cerrarSesionEstudiante, sincronizando } = useProgreso()
 
   const niveles = [
     { sellos: 0, titulo: 'Lector Aprendiz', color: '#8c5835' },
@@ -17,7 +17,7 @@ export function FichaLector({ onCerrar }) {
     [...niveles].reverse().find((n) => progreso.totalSellos >= n.sellos) || niveles[0]
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
       <div className="bg-[#fffcf7] border-4 border-[#8c5835] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative text-left animate-in fade-in zoom-in-95">
         <button
           onClick={onCerrar}
@@ -29,14 +29,59 @@ export function FichaLector({ onCerrar }) {
 
         {/* Encabezado Ficha tipo Biblioteca */}
         <div className="border-b-2 border-dashed border-[#d6c4a5] pb-4 mb-6">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#8c5835]">
-            <Icono name="Bookmark" size={16} />
-            <span>Biblioteca Escolar de Lenguaje · Grado 5.°</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#8c5835]">
+              <Icono name="Bookmark" size={16} />
+              <span>Biblioteca Escolar de Lenguaje · Grado 5.°</span>
+            </div>
+            {sincronizando && (
+              <span className="text-[11px] font-bold text-[#2e7d32] bg-[#e8f5e9] px-2 py-0.5 rounded-full flex items-center gap-1 animate-pulse">
+                <Icono name="Sparkles" size={12} />
+                Guardando en la nube...
+              </span>
+            )}
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#42230c] mt-1">
             Ficha de Préstamo y Logros
           </h2>
         </div>
+
+        {/* Identificación del Estudiante */}
+        {estudiante ? (
+          <div className="bg-[#fffdf9] border-2 border-[#d6c4a5] rounded-2xl p-4 mb-5 flex items-center justify-between">
+            <div>
+              <span className="text-[11px] uppercase font-bold text-[#8c5835]">Lector Registrado:</span>
+              <h3 className="text-xl font-black text-[#42230c]">
+                {estudiante.nombre} {estudiante.apellido}
+              </h3>
+              <span className="text-xs text-[#2e7d32] font-semibold flex items-center gap-1 mt-0.5">
+                <Icono name="CheckCircle2" size={14} />
+                Progreso sincronizado en Supabase
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                cerrarSesionEstudiante()
+                if (onCambiarEstudiante) onCambiarEstudiante()
+              }}
+              className="px-3 py-1.5 rounded-xl border border-[#d6c4a5] bg-[#f5ebd7] hover:bg-[#ebd8bd] text-[#633919] font-bold text-xs cursor-pointer transition-colors"
+            >
+              Cambiar lector
+            </button>
+          </div>
+        ) : (
+          <div className="bg-[#fff3e0] border border-[#ffe0b2] rounded-2xl p-3 mb-5 flex items-center justify-between">
+            <span className="text-xs font-medium text-[#e65100]">
+              Estás navegando como invitado. Ingresa para guardar tu progreso.
+            </span>
+            <button
+              onClick={onCambiarEstudiante}
+              className="px-3 py-1 bg-[#8c5835] text-white rounded-lg text-xs font-bold cursor-pointer"
+            >
+              Ingresar
+            </button>
+          </div>
+        )}
 
         {/* Datos del lector */}
         <div className="bg-[#f7efe1] p-4 rounded-2xl border border-[#e3d3bd] mb-6 flex items-center justify-between">
@@ -84,19 +129,7 @@ export function FichaLector({ onCerrar }) {
         </div>
 
         {/* Pie y acciones */}
-        <div className="flex items-center justify-between pt-4 border-t border-[#eee2d3]">
-          <button
-            onClick={() => {
-              if (window.confirm('¿Seguro que deseas reiniciar tu progreso en este navegador?')) {
-                reiniciarProgreso()
-              }
-            }}
-            className="text-xs text-[#a94442] hover:underline flex items-center gap-1 cursor-pointer"
-          >
-            <Icono name="RotateCcw" size={14} />
-            Reiniciar progreso
-          </button>
-
+        <div className="flex items-center justify-end pt-4 border-t border-[#eee2d3]">
           <button
             onClick={onCerrar}
             className="px-6 py-2 bg-[#8c5835] hover:bg-[#704223] text-white rounded-xl font-bold text-sm cursor-pointer shadow-sm"

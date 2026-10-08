@@ -5,11 +5,13 @@ import { ProgresoProvider, useProgreso } from './context/ProgresoContext'
 import { EstanteriaLibros } from './components/EstanteriaLibros'
 import { VistaLibro } from './components/VistaLibro'
 import { FichaLector } from './components/FichaLector'
+import { ModalIngreso } from './components/ModalIngreso'
 
 function ContenidoPrincipal() {
-  const { progreso } = useProgreso()
+  const { estudiante, progreso, sincronizando } = useProgreso()
   const [moduloSeleccionado, setModuloSeleccionado] = useState(null)
   const [mostrarFicha, setMostrarFicha] = useState(false)
+  const [mostrarIngreso, setMostrarIngreso] = useState(!estudiante)
 
   return (
     <div className="min-h-screen flex flex-col bg-[#fbf7ee]">
@@ -30,26 +32,51 @@ function ContenidoPrincipal() {
             </div>
           </div>
 
-          {/* Ficha rápida de lector y estrellas */}
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 bg-[#2c1505]/60 px-3 py-1.5 rounded-xl border border-[#8c5835]/50">
-              <div className="flex items-center gap-1 text-[#f59f00] font-black text-sm">
-                <Icono name="Star" size={16} />
-                <span>{progreso.totalEstrellas}</span>
+          {/* Ficha rápida de lector, usuario y estrellas */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {estudiante ? (
+              <div
+                onClick={() => setMostrarFicha(true)}
+                className="hidden sm:flex items-center gap-2 bg-[#2c1505]/70 hover:bg-[#2c1505] px-3 py-1.5 rounded-xl border border-[#8c5835]/50 cursor-pointer transition-colors"
+                title="Ver mi progreso detallado"
+              >
+                <div className="text-left">
+                  <span className="text-[10px] uppercase font-bold text-[#d6c4a5] block leading-none">
+                    Lector:
+                  </span>
+                  <span className="text-xs font-bold text-white leading-tight">
+                    {estudiante.nombre} {estudiante.apellido}
+                  </span>
+                </div>
+                <div className="h-5 w-px bg-[#8c5835]/80" />
+                <div className="flex items-center gap-1 text-[#f59f00] font-black text-xs">
+                  <Icono name="Star" size={14} />
+                  <span>{progreso.totalEstrellas}</span>
+                </div>
+                <div className="flex items-center gap-1 text-[#81c784] font-black text-xs">
+                  <Icono name="Award" size={14} />
+                  <span>{progreso.totalSellos}</span>
+                </div>
               </div>
-              <div className="h-4 w-px bg-[#8c5835]" />
-              <div className="flex items-center gap-1 text-[#81c784] font-black text-sm">
-                <Icono name="Award" size={16} />
-                <span>{progreso.totalSellos} sellos</span>
-              </div>
-            </div>
+            ) : (
+              <button
+                onClick={() => setMostrarIngreso(true)}
+                className="px-3 py-1.5 bg-[#f5ebd7]/20 hover:bg-[#f5ebd7]/30 text-[#f5ebd7] rounded-xl text-xs font-bold flex items-center gap-1.5 border border-[#8c5835] cursor-pointer"
+              >
+                <Icono name="Bookmark" size={14} />
+                <span>Ingresar nombre</span>
+              </button>
+            )}
 
             <button
-              onClick={() => setMostrarFicha(true)}
+              onClick={() => {
+                if (!estudiante) setMostrarIngreso(true)
+                else setMostrarFicha(true)
+              }}
               className="px-3.5 py-2 bg-[#f5ebd7] hover:bg-[#fff9ed] text-[#42230c] rounded-xl font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-xs cursor-pointer transition-all hover:scale-105"
             >
               <Icono name="Bookmark" size={16} />
-              <span>Mi Ficha de Lector</span>
+              <span>{estudiante ? 'Mi Ficha' : 'Ingresar'}</span>
             </button>
           </div>
         </div>
@@ -71,10 +98,12 @@ function ContenidoPrincipal() {
                 <span>Sala infantil de lectura y ortografía colombiana</span>
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-[#42230c] mt-1 mb-2">
-                ¡Bienvenido a la Biblioteca de Letras!
+                {estudiante
+                  ? `¡Hola, ${estudiante.nombre}! Tus libros te esperan.`
+                  : '¡Bienvenido a la Biblioteca de Letras!'}
               </h2>
               <p className="text-sm sm:text-base text-[#54463d] leading-relaxed">
-                Elige cualquiera de los libros del estante para descubrir relatos de la tradición colombiana (Pombo, Quiroga, leyendas del río Magdalena) y supera los 6 minijuegos: sopa de letras, crucigramas, corrector de textos, adivinar la palabra intrusa y completar oraciones.
+                Elige cualquiera de los libros del estante para descubrir relatos de la literatura colombiana y tradicional, y supera los 6 minijuegos: sopa de letras, crucigramas, corrector de textos, adivinar la palabra intrusa y completar oraciones. Tu avance se guarda automáticamente en la base de datos con tu nombre.
               </p>
             </div>
             <div className="bg-[#f5ebd7] p-4 rounded-2xl border border-[#d6c4a5] shrink-0 text-center w-full md:w-auto">
@@ -93,8 +122,20 @@ function ContenidoPrincipal() {
         </main>
       )}
 
-      {/* Modal Ficha de Lector */}
-      {mostrarFicha && <FichaLector onCerrar={() => setMostrarFicha(false)} />}
+      {/* Modales: Ficha de Lector o Ingreso de Estudiante */}
+      {mostrarFicha && (
+        <FichaLector
+          onCerrar={() => setMostrarFicha(false)}
+          onCambiarEstudiante={() => {
+            setMostrarFicha(false)
+            setMostrarIngreso(true)
+          }}
+        />
+      )}
+
+      {mostrarIngreso && (
+        <ModalIngreso onCerrar={() => setMostrarIngreso(false)} />
+      )}
 
       {/* Pie de página con rigor pedagógico */}
       <footer className="bg-[#ecdcc3] border-t-2 border-[#d6c4a5] py-6 px-4 text-center text-xs text-[#695d56] mt-auto">
